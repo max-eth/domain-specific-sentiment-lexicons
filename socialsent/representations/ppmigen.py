@@ -5,6 +5,10 @@ from argparse import ArgumentParser
 from socialsent.representations.representation_factory import create_representation
 from scipy.sparse import coo_matrix
 
+import pyximport
+pyximport.install(setup_args={"include_dirs": np.get_include()})
+from socialsent.representations import sparse_io
+
 def make_ppmi_mat(old_mat, row_probs, col_probs, smooth, neg=1, normalize=False):
     prob_norm = old_mat.sum() + (old_mat.shape[0] * old_mat.shape[1]) * smooth
     old_mat = old_mat.tocoo()
@@ -43,10 +47,8 @@ def run(count_path, index_path, out_path, smooth=0, cds=True, normalize=False, n
 
     # building PPMI matrix
     ppmi_mat = make_ppmi_mat(old_mat, row_probs, col_probs, smooth, neg=neg, normalize=normalize)
-    import pyximport
-    pyximport.install(setup_args={"include_dirs": np.get_include()})
-    from representations import sparse_io
-    sparse_io.export_mat_eff(ppmi_mat.row, ppmi_mat.col, ppmi_mat.data, out_path + ".bin")
+
+    sparse_io.export_mat_eff(ppmi_mat.row, ppmi_mat.col, ppmi_mat.data, (out_path + ".bin").encode())
     util.write_pickle(index, out_path + "-index.pkl")
 
 if __name__ == "__main__":
@@ -59,4 +61,3 @@ if __name__ == "__main__":
     parser.add_argument("--normalize", action='store_true', help="Whether to normalize PPMI values by inverse log-prob")
     args = parser.parse_args()
     run(args.count_path, args.out_path, args.smooth, args.cds, args.normalize, args.neg)
-

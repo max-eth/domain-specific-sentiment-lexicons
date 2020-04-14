@@ -4,8 +4,8 @@ from sklearn.utils.extmath import randomized_svd
 from socialsent import util
 from socialsent.representations.explicit import Explicit
 
-def run(in_file, out_path, dim=300, keep_words=None): 
-        base_embed = Explicit.load(in_file, normalize=False)
+def run(index_path, in_file, out_path, dim=300, keep_words=None): 
+        base_embed = Explicit.load(in_file, index_path, normalize=False)
         if keep_words != None:
             base_embed = base_embed.get_subembed(keep_words)
         u, s, v = randomized_svd(base_embed.m, n_components=dim, n_iter=5)

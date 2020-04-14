@@ -38,7 +38,7 @@ class Explicit:
 
 
     @classmethod
-    def load(cls, index_path, path, normalize=True, restricted_context=None, **kwargs):
+    def load(cls, path, index_path, normalize=True, restricted_context=None, **kwargs):
         mat = load_matrix(path)
         word_vocab, context_vocab = load_vocabulary(mat, index_path)
         return cls(mat, word_vocab, context_vocab, normalize=normalize, restricted_context=restricted_context)

@@ -53,9 +53,9 @@ def main(filename, subreddit):
         out_path + "counts.bin",
     )
     print("Generating PPMI vectors...")
-    ppmigen.run(out_path + "counts.bin", out_path + "ppmi", cds=True)
+    ppmigen.run(out_path +"-index.pkl", out_path + "counts.bin", out_path + "ppmi", cds=True)
     print("Generating SVD vectors...")
-    makelowdim.run(out_path + "ppmi.bin", out_path + "vecs")
+    makelowdim.run(out_path +"-index.pkl", out_path + "ppmi.bin", out_path + "vecs")
 
 
 if __name__ == "__main__":

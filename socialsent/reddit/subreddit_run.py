@@ -7,6 +7,8 @@ from socialsent import polarity_induction_methods
 from socialsent.representations.embedding import SVDEmbedding
 from socialsent.constants import DATA_DIR, VECS, DICTS, POLARITIES
 
+from socialsent.representations.representation_factory import create_representation
+
 
 def main(subreddit):
     dir_path = os.path.join(DATA_DIR, subreddit)
@@ -19,7 +21,9 @@ def main(subreddit):
     word_dict.filter_tokens(good_ids=to_keep)
 
     print("create representation")
-    sub_vecs = SVDEmbedding(file_vecs)
+    sub_vecs = create_representation(
+        'SVD', file_vecs
+    )
     pos_seeds, neg_seeds = seeds.twitter_seeds()
 
     print("get sub embedding")

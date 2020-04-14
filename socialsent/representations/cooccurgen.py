@@ -3,9 +3,11 @@ import os
 import numpy as np
 from socialsent import util
 import pyximport
+
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 
 from socialsent.representations import sparse_io
+
 
 def run(word_gen, index, window_size, out_file):
     context = []
@@ -17,6 +19,7 @@ def run(word_gen, index, window_size, out_file):
         pair_counts = _process_context(context, pair_counts, window_size)
 
     sparse_io.export_mat_from_dict(pair_counts, out_file.encode())
+
 
 def _process_context(context, pair_counts, window_size):
     if len(context) < window_size + 1:

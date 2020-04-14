@@ -11,13 +11,15 @@ class Explicit:
     """
     Base class for explicit representations. Assumes that the serialized input is (P)PMI.
     """
-    
-    def __init__(self, mat, word_vocab, context_vocab, normalize=True, restricted_context=None):
+
+    def __init__(
+        self, mat, word_vocab, context_vocab, normalize=True, restricted_context=None
+    ):
         self.m = mat
         self.iw = word_vocab
         self.ic = context_vocab
-        self.wi = {w:i for i,w in enumerate(self.iw)}
-        self.ci = {c:i for i,c in enumerate(self.ic)}
+        self.wi = {w: i for i, w in enumerate(self.iw)}
+        self.ci = {c: i for i, c in enumerate(self.ic)}
         self.normal = normalize
         if restricted_context != None:
             self.restrict_context(restricted_context)
@@ -36,12 +38,17 @@ class Explicit:
     def __contains__(self, key):
         return not self.oov(key)
 
-
     @classmethod
     def load(cls, path, index_path, normalize=True, restricted_context=None, **kwargs):
         mat = load_matrix(path)
         word_vocab, context_vocab = load_vocabulary(mat, index_path)
-        return cls(mat, word_vocab, context_vocab, normalize=normalize, restricted_context=restricted_context)
+        return cls(
+            mat,
+            word_vocab,
+            context_vocab,
+            normalize=normalize,
+            restricted_context=restricted_context,
+        )
 
     def get_subembed(self, word_list, normalize=False, restrict_context=True):
         """
@@ -69,7 +76,7 @@ class Explicit:
         rel_indices = np.array([self.ci[rel_word] for rel_word in rel_words])
         self.m = self.m[:, rel_indices]
         self.ic = rel_words
-        self.ci = {c:i for i,c in enumerate(self.ic)}
+        self.ci = {c: i for i, c in enumerate(self.ic)}
 
     def normalize(self):
         preprocessing.normalize(self.m, copy=False)
@@ -79,30 +86,30 @@ class Explicit:
             return self.m[self.wi[w], :]
         else:
             return csr_matrix((1, len(self.ic)))
-    
+
     def similarity_first_order(self, w, c):
         if self.oov(w) or self.oov(c):
             return 0.0
         return self.m[self.wi[w], self.ci[c]]
-    
+
     def oov(self, w):
-        return (not w in self.wi)
+        return not w in self.wi
 
     def similarity(self, w1, w2):
         """
         Assumes the vectors have been normalized.
         """
         if self.oov(w1) or self.oov(w2):
-            return float('nan')
+            return float("nan")
         return self.represent(w1).dot(self.represent(w2).T)[0, 0]
-    
+
     def closest_contexts(self, w, n=10):
         """
         Assumes the vectors have been normalized.
         """
         scores = self.represent(w)
         return heapq.nlargest(n, zip(scores.data, [self.ic[i] for i in scores.indices]))
-    
+
     def closest(self, w, n=10):
         """
         Assumes the vectors have been normalized.
@@ -118,13 +125,30 @@ class Explicit:
         scores = self.m[self.wi[w], :]
         return heapq.nlargest(n, zip(scores.data, [self.iw[i] for i in scores.indices]))
 
+
 class PositiveExplicit(Explicit):
     """
     Positive PMI (PPMI) with negative sampling (neg).
     Negative samples shift the PMI matrix before truncation.
     """
-    def __init__(self, mat, word_vocab, context_vocab, normalize=True, restricted_context=None, neg=1):
-        Explicit.__init__(self, mat, word_vocab, context_vocab, normalize=False, restricted_context=restricted_context)
+
+    def __init__(
+        self,
+        mat,
+        word_vocab,
+        context_vocab,
+        normalize=True,
+        restricted_context=None,
+        neg=1,
+    ):
+        Explicit.__init__(
+            self,
+            mat,
+            word_vocab,
+            context_vocab,
+            normalize=False,
+            restricted_context=restricted_context,
+        )
         self.m.data -= np.log(neg)
         self.m.data[self.m.data < 0] = 0
         self.m.eliminate_zeros()
@@ -135,5 +159,6 @@ class PositiveExplicit(Explicit):
     def load(cls, path, normalize=True, restricted_context=None, thresh=None, neg=1):
         mat = load_matrix(path, thresh)
         word_vocab, context_vocab = load_vocabulary(mat, path)
-        return cls(mat, word_vocab, context_vocab, normalize, restricted_context, neg=neg)
-
+        return cls(
+            mat, word_vocab, context_vocab, normalize, restricted_context, neg=neg
+        )

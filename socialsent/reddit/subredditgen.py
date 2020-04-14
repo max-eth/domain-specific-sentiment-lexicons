@@ -30,14 +30,14 @@ def word_gen(filename, gensim_dict, subreddit, num_lines):
 
 def main(filename, subreddit):
     out_path = OUT.format(subreddit)
-    #util.mkdir(out_path)
+    # util.mkdir(out_path)
 
-    #print("Getting and writing dictionary...")
+    # print("Getting and writing dictionary...")
 
-    #with open(filename, "r") as f:
+    # with open(filename, "r") as f:
     #    num_lines = sum(1 for line in f)
 
-    #with open(filename, "r") as f:
+    # with open(filename, "r") as f:
     #    dicts = (json.loads(comment) for comment in tqdm(f, total=num_lines))
     #    gdict = Dictionary(
     #        simple_preprocess(comment["body"])
@@ -45,22 +45,23 @@ def main(filename, subreddit):
     #        if comment["score"] > 0 and comment["subreddit"] == subreddit
     #    )
 
-    #gdict.filter_extremes(no_above=0.5, no_below=100)
-    #gdict.compactify()
-    #util.write_pickle(gdict.token2id, out_path + "-index.pkl")
-    #util.write_pickle(gdict, out_path + "-dict.pkl")
+    # gdict.filter_extremes(no_above=0.5, no_below=100)
+    # gdict.compactify()
+    # util.write_pickle(gdict.token2id, out_path + "-index.pkl")
+    # util.write_pickle(gdict, out_path + "-dict.pkl")
 
-    #print("Generating word co-occurrences...")
-    #cooccurgen.run(
+    # print("Generating word co-occurrences...")
+    # cooccurgen.run(
     #    word_gen(filename, gdict, subreddit, num_lines),
     #    gdict.token2id,
     #    4,
     #    out_path + "counts.bin",
-    #)
-    #print("Generating PPMI vectors...")
-    #ppmigen.run(out_path +"-index.pkl", out_path + "counts.bin", out_path + "ppmi", cds=True)
+    # )
+    # print("Generating PPMI vectors...")
+    # ppmigen.run(out_path +"-index.pkl", out_path + "counts.bin", out_path + "ppmi", cds=True)
     print("Generating SVD vectors...")
-    makelowdim.run(out_path +"-index.pkl", out_path + "ppmi.bin", out_path + "vecs")
+    makelowdim.run(out_path + "-index.pkl", out_path + "ppmi.bin", out_path + "vecs")
+
 
 if __name__ == "__main__":
     parser = ArgumentParser("Make subreddit word vectors")

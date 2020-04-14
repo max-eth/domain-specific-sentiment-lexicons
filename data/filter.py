@@ -3,20 +3,24 @@ import zstandard as zstd
 from tqdm import tqdm
 
 import argparse
+import os
 
 
 parser = argparse.ArgumentParser(description="Filter a reddit data-dump")
 parser.add_argument(
     "dump_filename", help="the filename of the data-dump. Needs to be in zst format."
 )
-parser.add_argument(
-    "subreddits", nargs="+", help="the subreddits to filter out"
-)
+parser.add_argument("subreddits", nargs="+", help="the subreddits to filter out")
 
 args = parser.parse_args()
+print("Writing to data/subreddits/ ...")
 
-outfiles = {sub: open("outputs_" + sub + ".json", "w") for sub in
-            args.subreddits}
+prefix = os.path.join("data", "subreddits")
+os.makedirs(prefix)
+outfiles = {
+    sub: open(os.path.join(prefix, "outputs_" + sub + ".json"), "w")
+    for sub in args.subreddits
+}
 
 with open(args.dump_filename, "rb") as fh:
     dctx = zstd.ZstdDecompressor()

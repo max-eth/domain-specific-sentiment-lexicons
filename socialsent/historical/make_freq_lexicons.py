@@ -14,9 +14,10 @@ from representations.representation_factory import create_representation
 Makes historical sentiment lexicons for non-stop words with freq. > 10**-6.0
 """
 
+
 def worker(proc_num, queue):
     while True:
-        time.sleep(random.random()*10)
+        time.sleep(random.random() * 10)
         try:
             year = queue.get(block=False)
         except Empty:
@@ -33,12 +34,20 @@ def worker(proc_num, queue):
         words = words.intersection(embed_words)
 
         polarities = polarity_induction_methods.bootstrap(
-                 embed.get_subembed(words.union(positive_seeds).union(negative_seeds)),
-                 positive_seeds, negative_seeds,
-                 score_method=polarity_induction_methods.random_walk,
-                 num_boots=50, n_procs=20, return_all=True,
-                 beta=0.9, nn=25)
-        util.write_pickle(polarities, constants.POLARITIES + year + '-coha-freq-boot.pkl')
+            embed.get_subembed(words.union(positive_seeds).union(negative_seeds)),
+            positive_seeds,
+            negative_seeds,
+            score_method=polarity_induction_methods.random_walk,
+            num_boots=50,
+            n_procs=20,
+            return_all=True,
+            beta=0.9,
+            nn=25,
+        )
+        util.write_pickle(
+            polarities, constants.POLARITIES + year + "-coha-freq-boot.pkl"
+        )
+
 
 def main():
     num_procs = 6
@@ -50,6 +59,7 @@ def main():
         p.start()
     for p in procs:
         p.join()
+
 
 if __name__ == "__main__":
     main()

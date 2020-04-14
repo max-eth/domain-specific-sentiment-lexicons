@@ -5,6 +5,7 @@ from sklearn import preprocessing
 
 from socialsent.util import load_pickle, lines
 
+
 class Embedding:
     """
     Base class for all embeddings. SGNS can be directly instantiated with it.
@@ -14,7 +15,7 @@ class Embedding:
         self.m = vecs
         self.dim = self.m.shape[1]
         self.iw = vocab
-        self.wi = {w:i for i,w in enumerate(self.iw)}
+        self.wi = {w: i for i, w in enumerate(self.iw)}
         if normalize:
             self.normalize()
 
@@ -36,7 +37,7 @@ class Embedding:
         if add_context:
             mat += np.load(path + "-c.npy")
         iw = load_pickle(path + "-vocab.pkl")
-        return cls(mat, iw, normalize) 
+        return cls(mat, iw, normalize)
 
     def get_subembed(self, word_list, **kwargs):
         word_list = [word for word in word_list if not self.oov(word)]
@@ -50,14 +51,14 @@ class Embedding:
             if word in valid_words:
                 new_mat[i, :] = self.represent(word)
             else:
-                new_mat[i, :] = 0 
+                new_mat[i, :] = 0
         return Embedding(new_mat, word_list, normalize=False)
 
     def get_neighbourhood_embed(self, w, n=1000):
         neighbours = self.closest(w, n=n)
-        keep_indices = [self.wi[neighbour] for _, neighbour in neighbours] 
+        keep_indices = [self.wi[neighbour] for _, neighbour in neighbours]
         new_mat = self.m[keep_indices, :]
-        return Embedding(new_mat, [neighbour for _, neighbour in neighbours]) 
+        return Embedding(new_mat, [neighbour for _, neighbour in neighbours])
 
     def normalize(self):
         preprocessing.normalize(self.m, copy=False)
@@ -85,7 +86,7 @@ class Embedding:
         """
         scores = self.m.dot(self.represent(w))
         return heapq.nlargest(n, zip(scores, self.iw))
-    
+
 
 class SVDEmbedding(Embedding):
     """
@@ -93,14 +94,14 @@ class SVDEmbedding(Embedding):
     Enables controlling the weighted exponent of the eigenvalue matrix (eig).
     Context embeddings can be created with "transpose".
     """
-    
+
     def __init__(self, path, normalize=True, eig=0.0, **kwargs):
-        ut = np.load(path + '-u.npy')
-        s = np.load(path + '-s.npy')
-        vocabfile = path + '-vocab.pkl'
+        ut = np.load(path + "-u.npy")
+        s = np.load(path + "-s.npy")
+        vocabfile = path + "-vocab.pkl"
         self.iw = load_pickle(vocabfile)
-        self.wi = {w:i for i, w in enumerate(self.iw)}
- 
+        self.wi = {w: i for i, w in enumerate(self.iw)}
+
         if eig == 0.0:
             self.m = ut
         elif eig == 1.0:
@@ -113,6 +114,7 @@ class SVDEmbedding(Embedding):
         if normalize:
             self.normalize()
 
+
 class GigaEmbedding(Embedding):
     def __init__(self, path, words, dim=300, normalize=True, **kwargs):
         seen = []
@@ -122,11 +124,9 @@ class GigaEmbedding(Embedding):
             w = split[0]
             if w in words:
                 seen.append(w)
-                vs[w] = np.array(map(float, split[1:]), dtype='float32')
+                vs[w] = np.array(map(float, split[1:]), dtype="float32")
         self.iw = seen
-        self.wi = {w:i for i,w in enumerate(self.iw)}
+        self.wi = {w: i for i, w in enumerate(self.iw)}
         self.m = np.vstack(vs[w] for w in self.iw)
         if normalize:
             self.normalize()
-
-

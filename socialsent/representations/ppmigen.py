@@ -57,28 +57,3 @@ def run(count_path, index_path, out_path, smooth=0, cds=True, normalize=False, n
         ppmi_mat.row, ppmi_mat.col, ppmi_mat.data, (out_path + ".bin").encode()
     )
     util.write_pickle(index, out_path + "-index.pkl")
-
-
-if __name__ == "__main__":
-    parser = ArgumentParser("Generates PPMI matrix from count matrix")
-    parser.add_argument("count_path", help="Path to count matrix.")
-    parser.add_argument("out_path", help="Output path prefix (no extension)")
-    parser.add_argument(
-        "--cds", action="store_true", help="Whether to use context distribution scaling"
-    )
-    parser.add_argument(
-        "--neg", type=int, help="Number of negative samples to substract.", default=1
-    )
-    parser.add_argument(
-        "--smooth",
-        type=int,
-        help="Laplace smoothing factor (as relative frequency for joint events.)",
-        default=0,
-    )
-    parser.add_argument(
-        "--normalize",
-        action="store_true",
-        help="Whether to normalize PPMI values by inverse log-prob",
-    )
-    args = parser.parse_args()
-    run(args.count_path, args.out_path, args.smooth, args.cds, args.normalize, args.neg)

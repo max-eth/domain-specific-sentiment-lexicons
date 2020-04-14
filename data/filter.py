@@ -1,7 +1,7 @@
 import io
 import zstandard as zstd
 from tqdm import tqdm
-
+import json
 import argparse
 import os
 
@@ -14,12 +14,10 @@ parser.add_argument("subreddits", nargs="+", help="the subreddits to filter out"
 
 args = parser.parse_args()
 
-prefix = os.path.join("data", "subreddits")
-print("Writing to {} ...".format(prefix))
-
-os.makedirs(prefix)
+for sub in args.subreddits:
+    os.makedirs(sub, exist_ok=True)
 outfiles = {
-    sub: open(os.path.join(prefix, "outputs_" + sub + ".json"), "w")
+    sub: open(os.path.join(sub, "outputs.json"), "w")
     for sub in args.subreddits
 }
 
@@ -28,8 +26,9 @@ with open(args.dump_filename, "rb") as fh:
     stream_reader = dctx.stream_reader(fh)
     text_stream = io.TextIOWrapper(stream_reader, encoding="utf-8")
     for line in tqdm(text_stream):
+        d = json.loads(line)
         for sub, oh in outfiles.items():
-            if sub in line:
+            if d['subreddit'] == sub:
                 oh.write(line)
 
 for outfile in outfiles.values():

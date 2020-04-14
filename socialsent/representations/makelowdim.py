@@ -15,5 +15,3 @@ def run(index_path, in_file, out_path, dim=300, keep_words=None):
     np.save(out_path + "-v.npy", v)
     np.save(out_path + "-s.npy", s)
     util.write_pickle(base_embed.iw, out_path + "-vocab.pkl")
-
-

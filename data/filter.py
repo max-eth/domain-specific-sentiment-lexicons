@@ -13,9 +13,10 @@ parser.add_argument(
 parser.add_argument("subreddits", nargs="+", help="the subreddits to filter out")
 
 args = parser.parse_args()
-print("Writing to data/subreddits/ ...")
 
 prefix = os.path.join("data", "subreddits")
+print("Writing to {} ...".format(prefix))
+
 os.makedirs(prefix)
 outfiles = {
     sub: open(os.path.join(prefix, "outputs_" + sub + ".json"), "w")

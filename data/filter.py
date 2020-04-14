@@ -14,16 +14,18 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-outname = "outputs_" + "_".join(args.subreddits) + ".json"
-print("Writing to", outname)
+
+outfiles = {sub: open("outputs_" + sub + ".json", "w") for sub in
+            args.subreddits}
 
 with open(args.dump_filename, "rb") as fh:
     dctx = zstd.ZstdDecompressor()
     stream_reader = dctx.stream_reader(fh)
     text_stream = io.TextIOWrapper(stream_reader, encoding="utf-8")
-    with open(outname, "w") as oh:
-        for line in tqdm(text_stream):
-            for sub in args.subreddits:
-                if sub in line:
-                    oh.write(line)
-                    break
+    for line in tqdm(text_stream):
+        for sub, oh in outfiles.items():
+            if sub in line:
+                oh.write(line)
+
+for outfile in outfiles.values():
+    outfile.close()

@@ -17,13 +17,3 @@ def run(index_path, in_file, out_path, dim=300, keep_words=None):
     util.write_pickle(base_embed.iw, out_path + "-vocab.pkl")
 
 
-if __name__ == "__main__":
-    print("Getting keep words...")
-    counts = util.load_pickle("/dfs/scratch0/COHA/cooccurs/lemma/1990-counts.pkl")
-    keep_words = [word for word in counts if counts[word] >= 100]
-    print("Running SVD..")
-    run(
-        "/dfs/scratch0/COHA/cooccurs/lemma/testb-0-ppmi.bin.bin",
-        "/dfs/scratch0/COHA/cooccurs/lemma/testb-0-svd",
-        keep_words=keep_words,
-    )

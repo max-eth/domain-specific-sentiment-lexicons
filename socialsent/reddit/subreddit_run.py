@@ -1,33 +1,25 @@
 from argparse import ArgumentParser
-import sys
 import os
-import time
-import random
-
 from socialsent import seeds
-from socialsent import constants
 from socialsent import util
 from socialsent import polarity_induction_methods
 
-from socialsent.representations.representation_factory import create_representation
+from socialsent.representations.embedding import SVDEmbedding
+from socialsent.constants import DATA_DIR, VECS, DICTS, POLARITIES
 
 
-DICTS = "data/{}-dict.pkl"
-POLARITIES = "data/polarities/"
+def main(subreddit):
+    dir_path = os.path.join(DATA_DIR, subreddit)
+    file_dicts = os.path.join(dir_path, DICTS)
+    file_vecs = os.path.join(dir_path, VECS)
+    file_polarities = os.path.join(dir_path, POLARITIES)
 
-
-def main(subreddit_name):
-    # subredditgen.main(subreddit_name)
-    word_dict = util.load_pickle(DICTS.format(subreddit_name))
-    word_dict.filter_extremes(no_above=0.1, no_below=100)
-
+    word_dict = util.load_pickle(file_dicts)
     to_keep = sorted(word_dict.dfs, key=lambda w: word_dict.dfs[w], reverse=True)[:5000]
     word_dict.filter_tokens(good_ids=to_keep)
 
     print("create representation")
-    sub_vecs = create_representation(
-        "SVD", constants.SUBREDDIT_EMBEDDINGS.format(subreddit_name)
-    )
+    sub_vecs = SVDEmbedding(file_vecs)
     pos_seeds, neg_seeds = seeds.twitter_seeds()
 
     print("get sub embedding")
@@ -47,7 +39,7 @@ def main(subreddit_name):
         n_procs=10,
     )
 
-    util.write_pickle(pols, POLARITIES + subreddit_name + ".pkl")
+    util.write_pickle(pols, file_polarities)
 
 
 if __name__ == "__main__":

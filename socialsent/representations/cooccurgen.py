@@ -1,7 +1,5 @@
 from collections import Counter
-import os
 import numpy as np
-from socialsent import util
 import pyximport
 
 pyximport.install(setup_args={"include_dirs": np.get_include()})

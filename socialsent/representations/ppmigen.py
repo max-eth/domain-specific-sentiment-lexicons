@@ -1,14 +1,15 @@
 import numpy as np
 from socialsent import util
 from argparse import ArgumentParser
-
-from socialsent.representations.representation_factory import create_representation
 from scipy.sparse import coo_matrix
+import os
+
+from socialsent.representations import sparse_io
+from socialsent.representations.explicit import Explicit
+from socialsent.constants import PPMI, PPMI_INDEX, COUNTS, INDICES, DATA_DIR
 
 import pyximport
-
 pyximport.install(setup_args={"include_dirs": np.get_include()})
-from socialsent.representations import sparse_io
 
 
 def make_ppmi_mat(old_mat, row_probs, col_probs, smooth, neg=1, normalize=False):
@@ -34,8 +35,14 @@ def make_ppmi_mat(old_mat, row_probs, col_probs, smooth, neg=1, normalize=False)
     return coo_matrix((data_d, (row_d, col_d)))
 
 
-def run(count_path, index_path, out_path, smooth=0, cds=True, normalize=False, neg=1):
-    counts = create_representation("Explicit", index_path, count_path, normalize=False)
+def run(subreddit, smooth=0, cds=True, normalize=False, neg=1):
+    dir_path = os.path.join(DATA_DIR, subreddit)
+    file_indices = os.path.join(dir_path, INDICES)
+    file_counts = os.path.join(dir_path, COUNTS)
+    file_ppmi = os.path.join(dir_path, PPMI)
+    file_ppmi_index = os.path.join(dir_path, PPMI_INDEX)
+
+    counts = Explicit(file_indices, file_counts, normalize=False)
     old_mat = counts.m
     index = counts.wi
     smooth = old_mat.sum() * smooth
@@ -54,31 +61,7 @@ def run(count_path, index_path, out_path, smooth=0, cds=True, normalize=False, n
     )
 
     sparse_io.export_mat_eff(
-        ppmi_mat.row, ppmi_mat.col, ppmi_mat.data, (out_path + ".bin").encode()
+        ppmi_mat.row, ppmi_mat.col, ppmi_mat.data, file_ppmi).encode()
     )
-    util.write_pickle(index, out_path + "-index.pkl")
+    util.write_pickle(index, file_ppmi_index)
 
-
-if __name__ == "__main__":
-    parser = ArgumentParser("Generates PPMI matrix from count matrix")
-    parser.add_argument("count_path", help="Path to count matrix.")
-    parser.add_argument("out_path", help="Output path prefix (no extension)")
-    parser.add_argument(
-        "--cds", action="store_true", help="Whether to use context distribution scaling"
-    )
-    parser.add_argument(
-        "--neg", type=int, help="Number of negative samples to substract.", default=1
-    )
-    parser.add_argument(
-        "--smooth",
-        type=int,
-        help="Laplace smoothing factor (as relative frequency for joint events.)",
-        default=0,
-    )
-    parser.add_argument(
-        "--normalize",
-        action="store_true",
-        help="Whether to normalize PPMI values by inverse log-prob",
-    )
-    args = parser.parse_args()
-    run(args.count_path, args.out_path, args.smooth, args.cds, args.normalize, args.neg)

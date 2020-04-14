@@ -45,7 +45,7 @@ def wordnet_similarity_matrix(embeddings):
         for o_word in synonyms:
             if o_word in lemmas:
                 sim_mat[embeddings.wi[word], embeddings.wi[lemmas[o_word]]] = 1.
-    print np.sum(sim_mat)
+    print(np.sum(sim_mat))
     np.fill_diagonal(sim_mat, 0)
     return sim_mat
 

@@ -1,5 +1,6 @@
-import util
+from socialsent import util
 import os
+
 from nltk.corpus import stopwords
 from pkg_resources import resource_filename
 
@@ -32,7 +33,7 @@ COHA_FREQS = "/dfs/scratch0/COHA/decade_freqs/{}-word.pkl"
 DFS_DATA = '/dfs/scratch0/googlengrams/eng-all/decades/'
 #POS = DFS_DATA + '/pos/'
 POS = "/dfs/scratch0/hist_words/coha-word/pos/"
-SUBREDDIT_EMBEDDINGS = '/dfs/scratch2/wleif/Reddit/vecs/{}/vecs'
+SUBREDDIT_EMBEDDINGS = 'data/{}vecs'
 
 def make_directories():
     util.mkdir(DATA)

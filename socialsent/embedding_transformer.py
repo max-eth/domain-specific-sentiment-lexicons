@@ -61,7 +61,6 @@ class SimpleSGD(Optimizer):
 
 class Orthogonal(Constraint):
     def __call__(self, p):
-        print "here"
         u,s,v = T.nlinalg.svd(p)
         return K.dot(u,K.transpose(v))
 
@@ -155,11 +154,11 @@ def apply_embedding_transformation(embeddings, positive_seeds, negative_seeds,
                                    n_epochs=5, n_dim=10, force_orthogonal=False,
                                    plot=False, plot_points=50, plot_seeds=False,
                                    **kwargs):
-    print "Preparing to learn embedding tranformation"
+    print("Preparing to learn embedding tranformation")
     dataset = DatasetMinibatchIterator(embeddings, positive_seeds, negative_seeds, **kwargs)
     model = get_model(embeddings.m.shape[1], n_dim, **kwargs)
 
-    print "Learning embedding transformation"
+    print("Learning embedding transformation")
 #    prog = util.Progbar(n_epochs)
     for epoch in range(n_epochs):
         dataset.shuffle()

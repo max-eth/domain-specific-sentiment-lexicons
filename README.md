@@ -14,4 +14,4 @@ Updated implementation of SocialSent, a method for generating domain specific se
 	```
 	The polarity scores will be saved under `data/subreddit_name/stemmed-polarities.pkl`
 ## Analysis
-In this [notebook]() we apply the method on data from various subreddits and perform some analysis that is beyond the scope of the paper.  
+In this [notebook](https://github.com/max-eth/domain-specific-sentiment-lexicons/blob/master/Analysis.ipynb) we apply the method on data from various subreddits and perform some analysis that is beyond the scope of the paper.  

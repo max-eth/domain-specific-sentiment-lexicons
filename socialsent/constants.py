@@ -25,5 +25,6 @@ def filter_comments(x):
 
 
 
-NO_ABOVE = 0.4
+NO_ABOVE_1 = 0.5
+NO_ABOVE_2 = 0.1
 NO_BELOW = 100

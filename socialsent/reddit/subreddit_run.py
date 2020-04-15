@@ -5,7 +5,7 @@ from socialsent import util
 from socialsent import polarity_induction_methods
 
 from socialsent.representations.embedding import SVDEmbedding
-from socialsent.constants import DATA_DIR, VECS, DICTS, POLARITIES
+from socialsent.constants import DATA_DIR, VECS, DICTS, POLARITIES, NO_ABOVE_2, NO_BELOW
 
 from socialsent.representations.representation_factory import create_representation
 
@@ -17,6 +17,7 @@ def main(subreddit):
     file_polarities = os.path.join(dir_path, POLARITIES)
 
     word_dict = util.load_pickle(file_dicts)
+    word_dict.filter_extremes(no_above=NO_ABOVE_2, no_below=NO_BELOW)
     to_keep = sorted(word_dict.dfs, key=lambda w: word_dict.dfs[w], reverse=True)[:5000]
     word_dict.filter_tokens(good_ids=to_keep)
 

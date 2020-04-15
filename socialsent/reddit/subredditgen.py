@@ -7,7 +7,7 @@ import json
 from tqdm import tqdm
 import os
 
-from socialsent.constants import DATA_DIR, DICTS, OUTPUTS, NO_ABOVE, NO_BELOW, INDICES, COUNTS, PPMI, VECS, filter_comments
+from socialsent.constants import DATA_DIR, DICTS, OUTPUTS, NO_ABOVE_1, NO_BELOW, INDICES, COUNTS, PPMI, VECS, filter_comments
 
 
 def word_gen(filename, gensim_dict, subreddit, num_lines):
@@ -45,7 +45,7 @@ def main(subreddit):
            if filter_comments(comment)
        )
 
-    gdict.filter_extremes(no_above=NO_ABOVE, no_below=NO_BELOW)
+    gdict.filter_extremes(no_above=NO_ABOVE_1, no_below=NO_BELOW)
     gdict.compactify()
     util.write_pickle(gdict.token2id, file_indices)
     util.write_pickle(gdict, file_dicts)

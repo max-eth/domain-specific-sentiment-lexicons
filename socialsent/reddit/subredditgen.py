@@ -5,8 +5,9 @@ from argparse import ArgumentParser
 from socialsent.representations import ppmigen, cooccurgen, makelowdim
 import json
 from tqdm import tqdm
+import os
 
-from socialsent.constants import get_constants, filter_comments
+from socialsent.constants import get_constants, filter_comments, get_interval_idx, get_interval_fname
 
 from string import punctuation
 translator = str.maketrans('','',punctuation) 
@@ -37,24 +38,35 @@ def word_gen(corpus, gensim_dict, subreddit, num_lines):
 
 def main(subreddit):
     const = get_constants(subreddit)
-    print("Getting and writing dictionary...")
 
-    with open(const['OUTPUTS'], "r") as f:
-       num_lines = sum(1 for line in f)
+    if os.path.exists(const['CORPUS']):
+        print("Loading preexisting corpus...")
+        corpus = util.load_pickle(const['CORPUS'])
+    else:
+        print("Getting and writing dictionary...")
+
+        with open(const['OUTPUTS'], "r") as f:
+            num_lines = sum(1 for line in f)
 
 
-    with open(const['OUTPUTS'], "r") as f:
-       dicts = (json.loads(comment) for comment in tqdm(f, total=num_lines))
-       
-       corpus = list(
-           normalize_text(comment["body"], const['STEMMING'])
-           for comment in dicts
-           if filter_comments(comment)
-       )
+        with open(const['OUTPUTS'], "r") as f:
+            dicts = (json.loads(comment) for comment in tqdm(f, total=num_lines))
 
-       gdict = Dictionary(
-           corpus
-       )
+            if const["INTERVAL"] is not None:
+                corpuses = [[] for interval in const["ALL_INTERVALS"]]
+
+                for comment in dicts:
+                    i = get_interval_idx(comment["score"])
+                    corpuses[i].append(normalize_text(comment["body"], const['STEMMING']))
+
+                for i, interval in enumerate(const["ALL_INTERVALS"]):
+                    util.write_pickle(corpuses[i], get_interval_fname(subreddit, interval))
+
+                corpus = corpuses[0]
+                
+    gdict = Dictionary(
+        corpus
+    )
 
     gdict.filter_extremes(no_above=const['NO_ABOVE_1'], no_below=const['NO_BELOW'])
     gdict.compactify()
@@ -62,13 +74,11 @@ def main(subreddit):
 
     util.write_pickle(gdict.token2id, const['INDICES'])
     util.write_pickle(gdict, const['DICTS'])
-    util.write_pickle(corpus, const['CORPUS'])
 
-    # corpus = util.load_pickle(const['CORPUS'])
 
     print("Generating word co-occurrences...")
     cooccurgen.run(
-       word_gen(corpus, gdict, subreddit, num_lines),
+       word_gen(corpus, gdict, subreddit, len(corpus)),
        gdict.token2id,
        4,
        const['COUNTS']

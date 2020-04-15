@@ -3,8 +3,12 @@ from socialsent import constants
 from argparse import ArgumentParser
 
 
-def compute_polarities(subreddit, interval=None, stem=True):
-    constants.set_constants(stem, interval)
+def compute_polarities(subreddit, interval=None, intervals=None, stem=True):
+
+    if interval is not None and intervals is None:
+        raise ValueError("specify all intervals")
+
+    constants.set_constants(stem, interval, intervals)
 
     subredditgen.main(subreddit)
     subreddit_run.main(subreddit)

@@ -7,8 +7,7 @@ import json
 from tqdm import tqdm
 import os
 
-
-from socialsent.constants import DATA_DIR, DICTS, OUTPUTS, NO_ABOVE, NO_BELOW, INDICES, COUNTS, PPMI, VECS
+from socialsent.constants import DATA_DIR, DICTS, OUTPUTS, NO_ABOVE, NO_BELOW, INDICES, COUNTS, PPMI, VECS, filter_comments
 
 
 def word_gen(filename, gensim_dict, subreddit, num_lines):
@@ -43,7 +42,7 @@ def main(subreddit):
        gdict = Dictionary(
            simple_preprocess(comment["body"])
            for comment in dicts
-           if comment["score"] > 0 and comment["subreddit"] == subreddit
+           if filter_comments(comment)
        )
 
     gdict.filter_extremes(no_above=NO_ABOVE, no_below=NO_BELOW)
@@ -66,7 +65,6 @@ def main(subreddit):
 
 if __name__ == "__main__":
     parser = ArgumentParser("Make subreddit word vectors")
-    parser.add_argument("filename")
     parser.add_argument("subreddit")
     args = parser.parse_args()
-    main(args.filename, args.subreddit)
+    main(args.subreddit)

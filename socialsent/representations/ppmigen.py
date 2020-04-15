@@ -1,15 +1,13 @@
 import numpy as np
 from socialsent import util
 from scipy.sparse import coo_matrix
-import os
 from socialsent.representations.representation_factory import create_representation
 
 import pyximport
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 
 from socialsent.representations import sparse_io
-from socialsent.representations.explicit import Explicit
-from socialsent.constants import PPMI, PPMI_INDEX, COUNTS, INDICES, DATA_DIR
+from socialsent.constants import get_constants
 
 
 
@@ -37,11 +35,11 @@ def make_ppmi_mat(old_mat, row_probs, col_probs, smooth, neg=1, normalize=False)
 
 
 def run(subreddit, smooth=0, cds=True, normalize=False, neg=1):
-    dir_path = os.path.join(DATA_DIR, subreddit)
-    file_indices = os.path.join(dir_path, INDICES)
-    file_counts = os.path.join(dir_path, COUNTS)
-    file_ppmi = os.path.join(dir_path, PPMI)
-    file_ppmi_index = os.path.join(dir_path, PPMI_INDEX)
+    const = get_constants(subreddit)
+    file_indices = const['INDICES']
+    file_counts = const['COUNTS']
+    file_ppmi = const['PPMI']
+    file_ppmi_index = const['PPMI_INDEX']
 
     counts = create_representation('Explicit', file_counts, file_indices, normalize=False)
     old_mat = counts.m

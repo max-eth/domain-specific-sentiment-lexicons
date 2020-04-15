@@ -2,8 +2,10 @@ from socialsent.reddit import subreddit_run, subredditgen
 from socialsent import constants
 from argparse import ArgumentParser
 
-def compute_polarities(subreddit, scores_interval=None):
-    constants.scores_interval = [0, None]
+
+def compute_polarities(subreddit, interval=None, stem=True):
+    constants.set_constants(stem, interval)
+
     subredditgen.main(subreddit)
     subreddit_run.main(subreddit)
 

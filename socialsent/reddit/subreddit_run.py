@@ -1,35 +1,30 @@
 from argparse import ArgumentParser
-import os
 from socialsent import seeds
 from socialsent import util
 from socialsent import polarity_induction_methods
 from socialsent.reddit import subredditgen
 
-from socialsent.representations.embedding import SVDEmbedding
-from socialsent.constants import DATA_DIR, VECS, DICTS, POLARITIES, NO_ABOVE_2, NO_BELOW
+from socialsent.constants import get_constants
 
 from socialsent.representations.representation_factory import create_representation
 
 
 def main(subreddit):
-    dir_path = os.path.join(DATA_DIR, subreddit)
-    file_dicts = os.path.join(dir_path, DICTS)
-    file_vecs = os.path.join(dir_path, VECS)
-    file_polarities = os.path.join(dir_path, POLARITIES)
+    const = get_constants(subreddit)
 
-    word_dict = util.load_pickle(file_dicts)
-    word_dict.filter_extremes(no_above=NO_ABOVE_2, no_below=NO_BELOW)
+    word_dict = util.load_pickle(const['DICTS'])
+    word_dict.filter_extremes(no_above=const['NO_ABOVE_2'], no_below=const['NO_BELOW'])
     to_keep = sorted(word_dict.dfs, key=lambda w: word_dict.dfs[w], reverse=True)[:5000]
     word_dict.filter_tokens(good_ids=to_keep)
 
     print("Create representation...")
     sub_vecs = create_representation(
-        'SVD', file_vecs
+        'SVD', const['VECS']
     )
     pos_seeds, neg_seeds = seeds.twitter_seeds()
 
-    pos_seeds = list(set(subredditgen.normalize_text(' '.join(pos_seeds))))
-    neg_seeds = list(set(subredditgen.normalize_text(' '.join(neg_seeds))))
+    pos_seeds = list(set(subredditgen.normalize_text(' '.join(pos_seeds), const['STEMMING'])))
+    neg_seeds = list(set(subredditgen.normalize_text(' '.join(neg_seeds), const['STEMMING'])))
 
 
     print("Get sub embedding...")
@@ -51,7 +46,7 @@ def main(subreddit):
         n_procs=10,
     )
 
-    util.write_pickle(pols, file_polarities)
+    util.write_pickle(pols, const['POLARITIES'])
 
 
 if __name__ == "__main__":

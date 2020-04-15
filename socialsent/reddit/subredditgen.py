@@ -5,9 +5,8 @@ from argparse import ArgumentParser
 from socialsent.representations import ppmigen, cooccurgen, makelowdim
 import json
 from tqdm import tqdm
-import os
 
-from socialsent.constants import DATA_DIR, DICTS, OUTPUTS, NO_ABOVE_1, NO_BELOW, INDICES, COUNTS, PPMI, VECS, filter_comments, CORPUS, stemming
+from socialsent.constants import get_constants, filter_comments
 
 from string import punctuation
 translator = str.maketrans('','',punctuation) 
@@ -16,7 +15,7 @@ stoplist = set(stopwords.words('english'))
 from nltk.stem import SnowballStemmer
 stemmer = SnowballStemmer('english')
 
-def normalize_text(doc):
+def normalize_text(doc, stemming):
     "Input doc and return clean list of tokens"
     doc = doc.replace('\r', ' ').replace('\n', ' ')
     lower = doc.lower() # all lower case
@@ -37,27 +36,18 @@ def word_gen(corpus, gensim_dict, subreddit, num_lines):
                 yield word
 
 def main(subreddit):
-    dir_path = os.path.join(DATA_DIR, subreddit)
-    util.mkdir(dir_path)
-    file_comments = os.path.join(dir_path, OUTPUTS)
-    file_indices = os.path.join(dir_path, INDICES)
-    file_dicts = os.path.join(dir_path, DICTS)
-    file_counts = os.path.join(dir_path, COUNTS)
-    file_ppmi = os.path.join(dir_path, PPMI)
-    file_vecs = os.path.join(dir_path, VECS)
-    file_corpus = os.path.join(dir_path, CORPUS)
-
+    const = get_constants(subreddit)
     print("Getting and writing dictionary...")
 
-    with open(file_comments, "r") as f:
+    with open(const['OUTPUTS'], "r") as f:
        num_lines = sum(1 for line in f)
 
 
-    with open(file_comments, "r") as f:
+    with open(const['OUTPUTS'], "r") as f:
        dicts = (json.loads(comment) for comment in tqdm(f, total=num_lines))
        
        corpus = list(
-           normalize_text(comment["body"])
+           normalize_text(comment["body"], const['STEMMING'])
            for comment in dicts
            if filter_comments(comment)
        )
@@ -66,27 +56,27 @@ def main(subreddit):
            corpus
        )
 
-    gdict.filter_extremes(no_above=NO_ABOVE_1, no_below=NO_BELOW)
+    gdict.filter_extremes(no_above=const['NO_ABOVE_1'], no_below=const['NO_BELOW'])
     gdict.compactify()
 
 
-    util.write_pickle(gdict.token2id, file_indices)
-    util.write_pickle(gdict, file_dicts)
-    util.write_pickle(corpus, file_corpus)
+    util.write_pickle(gdict.token2id, const['INDICES'])
+    util.write_pickle(gdict, const['DICTS'])
+    util.write_pickle(corpus, const['CORPUS'])
 
-    corpus = util.load_pickle(file_corpus)
+    # corpus = util.load_pickle(const['CORPUS'])
 
     print("Generating word co-occurrences...")
     cooccurgen.run(
        word_gen(corpus, gdict, subreddit, num_lines),
        gdict.token2id,
        4,
-       file_counts
+       const['COUNTS']
     )
     print("Generating PPMI vectors...")
     ppmigen.run(subreddit, cds=True)
     print("Generating SVD vectors...")
-    makelowdim.run(file_indices, file_ppmi, file_vecs)
+    makelowdim.run(const['INDICES'], const['PPMI'], const['VECS'])
 
 
 if __name__ == "__main__":

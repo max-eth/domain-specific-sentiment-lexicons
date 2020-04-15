@@ -14,7 +14,7 @@ def word_gen(filename, gensim_dict, subreddit, num_lines):
 
     for i, line in tqdm(enumerate(open(filename)), total=num_lines):
         comment = json.loads(line)
-        if comment["score"] <= 0 or comment["subreddit"] != subreddit:
+        if not filter_comments(comment):
             continue
 
         for word in simple_preprocess(comment["body"]):

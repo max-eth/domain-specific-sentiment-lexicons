@@ -26,10 +26,7 @@ with open(args.dump_filename, "rb") as fh:
     stream_reader = dctx.stream_reader(fh)
     text_stream = io.TextIOWrapper(stream_reader, encoding="utf-8")
     for line in tqdm(text_stream):
-        d = json.loads(line)
-        for sub, oh in outfiles.items():
-            if d['subreddit'] == sub:
-                oh.write(line)
+        outfiles[json.loads(line)['subreddit']].write(line)
 
 for outfile in outfiles.values():
     outfile.close()

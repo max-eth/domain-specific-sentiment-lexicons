@@ -21,7 +21,10 @@ def main(subreddit):
     sub_vecs = create_representation(
         'SVD', const['VECS']
     )
-    pos_seeds, neg_seeds = seeds.twitter_seeds()
+    if const["GENDER"]:
+        pos_seeds, neg_seeds = seeds.gender_seeds()
+    else:
+        pos_seeds, neg_seeds = seeds.twitter_seeds()
 
     pos_seeds = list(set(subredditgen.normalize_text(' '.join(pos_seeds), const['STEMMING'])))
     neg_seeds = list(set(subredditgen.normalize_text(' '.join(neg_seeds), const['STEMMING'])))

@@ -63,6 +63,9 @@ def main(subreddit):
                     util.write_pickle(corpuses[i], get_interval_fname(subreddit, interval))
 
                 corpus = corpuses[0]
+            else:
+                corpus = [normalize_text(comment["body"], const['STEMMING']) for comment in dicts]
+
                 
     gdict = Dictionary(
         corpus

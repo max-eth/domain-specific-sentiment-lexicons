@@ -8,9 +8,9 @@ def compute_polarities(subreddit, interval=None, intervals=None, stem=True):
     if interval is not None and intervals is None:
         raise ValueError("specify all intervals")
 
-    constants.set_constants(stem, interval, intervals)
+    constants.set_constants(stem, interval, intervals, False)
 
-    subredditgen.main(subreddit)
+    #subredditgen.main(subreddit)
     subreddit_run.main(subreddit)
 
 

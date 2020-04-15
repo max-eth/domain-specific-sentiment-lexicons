@@ -247,7 +247,7 @@ def bootstrap(
     negative_seeds,
     num_boots=10,
     score_method=random_walk,
-    boot_size=7,
+    boot_size=6,
     return_all=False,
     n_procs=4,
     **kwargs

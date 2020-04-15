@@ -3,6 +3,7 @@ import os
 from socialsent import seeds
 from socialsent import util
 from socialsent import polarity_induction_methods
+from socialsent.reddit import subredditgen
 
 from socialsent.representations.embedding import SVDEmbedding
 from socialsent.constants import DATA_DIR, VECS, DICTS, POLARITIES, NO_ABOVE_2, NO_BELOW
@@ -21,18 +22,23 @@ def main(subreddit):
     to_keep = sorted(word_dict.dfs, key=lambda w: word_dict.dfs[w], reverse=True)[:5000]
     word_dict.filter_tokens(good_ids=to_keep)
 
-    print("create representation")
+    print("Create representation...")
     sub_vecs = create_representation(
         'SVD', file_vecs
     )
     pos_seeds, neg_seeds = seeds.twitter_seeds()
 
-    print("get sub embedding")
+    pos_seeds = list(set(subredditgen.normalize_text(' '.join(pos_seeds))))
+    neg_seeds = list(set(subredditgen.normalize_text(' '.join(neg_seeds))))
+
+
+    print("Get sub embedding...")
     sub_vecs = sub_vecs.get_subembed(
         set(word_dict.token2id.keys()).union(pos_seeds).union(neg_seeds)
     )
 
-    print("bootstrap")
+    print("Bootstrapping...")
+    print ("using seeds {} {}".format(pos_seeds, neg_seeds))
     pols = polarity_induction_methods.bootstrap(
         sub_vecs,
         pos_seeds,
@@ -40,7 +46,8 @@ def main(subreddit):
         return_all=True,
         nn=25,
         beta=0.9,
-        num_boots=50,
+        boot_size=len(pos_seeds) - 2,
+        num_boots=30,
         n_procs=10,
     )
 

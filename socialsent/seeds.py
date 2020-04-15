@@ -77,6 +77,36 @@ NEGATIVE_TWEET = [
     "sad",
 ]
 
+MALE = [
+    "man",
+    "male",
+    "boy",
+    "gentleman",
+    "mr",
+    "masculine",
+    "dad",
+    "father",
+    "brother",
+    "son",
+    "guy",
+]
+
+FEMALE = [
+    "female",
+    "woman",
+    "girl",
+    "lady",
+    "chick",
+    "mom",
+    "sister",
+    "mother",
+    "feminine",
+    "daughter",
+    "ms",
+    "mrs",
+    "miss"
+]
+
 POSITIVE_HIST = [
     "good",
     "lovely",
@@ -92,8 +122,7 @@ POSITIVE_HIST = [
 NEGATIVE_HIST = [
     "bad",
     "horrible",
-    "poor",
-    "unfortunate",
+    "poor", "unfortunate",
     "unpleasant",
     "disgusting",
     "evil",
@@ -143,6 +172,8 @@ def adj_seeds():
 def hist_seeds():
     return POSITIVE_HIST, NEGATIVE_HIST
 
+def gender_seeds():
+    return MALE, FEMALE
 
 def random_seeds(words, lexicon, num):
     sample_set = list(set(words).intersection(lexicon))

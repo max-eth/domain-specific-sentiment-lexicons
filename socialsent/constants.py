@@ -1,5 +1,4 @@
 import os
-import socialsent.main as main
 
 BASE_DIR = ""
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -30,7 +29,7 @@ def get_interval_idx(x):
     return len(all_intervals) - 1
 
 
-def set_constants(stemming, scores_interval, all_intervals=None):
+def set_constants(stemming, scores_interval, all_intervals=None, gender=False):
 
     global STEMMING
     STEMMING = stemming
@@ -39,6 +38,10 @@ def set_constants(stemming, scores_interval, all_intervals=None):
 
     global ALL_INTERVALS
     ALL_INTERVALS = all_intervals
+
+    global GENDER
+    GENDER = gender
+    
 
 
 def get_interval_name(scores_interval):
@@ -53,7 +56,8 @@ def get_interval_fname(subreddit, scores_interval):
         DATA_DIR,
         subreddit,
         ("stemmed-" if STEMMING else "") + 
-        get_interval_name(scores_interval)
+        ("gender-" if GENDER else "") + 
+        (get_interval_name(scores_interval) if scores_interval is not None else "")
         + "corpus.pkl",
     )
 
@@ -68,6 +72,7 @@ def get_constants(subreddit):
     if stemming:
         prefix = "stemmed-" + prefix
 
+
     constants = dict()
     constants["OUTPUTS"] = "outputs.json"
     constants["DICTS"] = prefix + "dict.pkl"
@@ -76,7 +81,11 @@ def get_constants(subreddit):
     constants["PPMI"] = prefix + "ppmi.bin"
     constants["PPMI_INDEX"] = prefix + "ppmi-index.pkl"
     constants["VECS"] = prefix + "vecs"
+
+    if GENDER:
+        prefix = "gender-" + prefix
     constants["POLARITIES"] = prefix + "polarities.pkl"
+
     constants = {k: os.path.join(DATA_DIR, subreddit, v) for k, v in constants.items()}
 
     constants["CORPUS"] = get_interval_fname(subreddit, scores_interval)
@@ -87,4 +96,5 @@ def get_constants(subreddit):
     constants["INTERVAL"] = SCORES_INTERVAL
     constants["ALL_INTERVALS"] = ALL_INTERVALS
     constants["DATADIR"] = DATA_DIR
+    constants["GENDER"] = GENDER
     return constants

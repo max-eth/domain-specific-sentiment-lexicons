@@ -16,10 +16,10 @@ POLARITIES = scores + 'polarities.pkl'
 def filter_comments(x):
     if scores_interval is not None:
         if scores_interval[0] is not None:
-            if x['score'] <= scores_interval:
+            if x['score'] <= scores_interval[0]:
                 return False
         if scores_interval[1] is not None:
-            if x['score'] > scores_interval:
+            if x['score'] > scores_interval[1]:
                 return False
     return True
 

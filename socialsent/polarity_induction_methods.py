@@ -54,21 +54,6 @@ def pmi(count_embeds, positive_seeds, negative_seeds, smooth=0.01, **kwargs):
     return polarities
 
 
-# def densify(embeddings, positive_seeds, negative_seeds,
-#        transform_method=embedding_transformer.apply_embedding_transformation, **kwargs):
-#    """
-#    Learns polarity scores via orthogonally-regularized projection to one-dimension
-#    Adapted from: http://arxiv.org/pdf/1602.07572.pdf
-#    """
-#    p_seeds = {word:1.0 for word in positive_seeds}
-#    n_seeds = {word:1.0 for word in negative_seeds}
-#    new_embeddings = embeddings
-#    new_embeddings = embedding_transformer.apply_embedding_transformation(
-#            embeddings, p_seeds, n_seeds, n_dim=1,  **kwargs)
-#    polarities = {w:new_embeddings[w][0] for w in embeddings.iw}
-#    return polarities
-
-
 def random_walk(embeddings, positive_seeds, negative_seeds, beta=0.9, **kwargs):
     """
     Learns polarity scores via random walks with teleporation to seed sets.
